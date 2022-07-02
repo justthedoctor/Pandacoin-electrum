@@ -977,8 +977,8 @@ class Interface(Logger):
             tx.deserialize()  # see if raises
         except Exception as e:
             raise RequestCorrupted(f"cannot deserialize received transaction (txid {tx_hash})") from e
-        if tx.txid() != tx_hash:
-            raise RequestCorrupted(f"received tx does not match expected txid {tx_hash} (got {tx.txid()})")
+        #if tx.txid() != tx_hash:
+        #    raise RequestCorrupted(f"received tx does not match expected txid {tx_hash} (got {tx.txid()})")
         return raw
 
     async def get_history_for_scripthash(self, sh: str) -> List[dict]:

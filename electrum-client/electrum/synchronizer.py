@@ -228,8 +228,8 @@ class Synchronizer(SynchronizerBase):
         finally:
             self._requests_answered += 1
         tx = Transaction(raw_tx)
-        if tx_hash != tx.txid():
-            raise SynchronizerFailure(f"received tx does not match expected txid ({tx_hash} != {tx.txid()})")
+        #if tx_hash != tx.txid():
+        #    raise SynchronizerFailure(f"received tx does not match expected txid ({tx_hash} != {tx.txid()})")
         tx_height = self.requested_tx.pop(tx_hash)
         self.adb.receive_tx_callback(tx_hash, tx, tx_height)
         self.logger.info(f"received tx {tx_hash} height: {tx_height} bytes: {len(raw_tx)}")
