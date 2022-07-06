@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QLabel, QVBoxLayout, QGridLayout, QPushButton
 
 from electrum.i18n import _
 from .util import WindowModalDialog, Buttons, OkButton, CancelButton, WWLabel
-from .amountedit import FUNKAmountEdit
+from .amountedit import PNDAmountEdit
 
 
 class RebalanceDialog(WindowModalDialog):
@@ -17,7 +17,7 @@ class RebalanceDialog(WindowModalDialog):
         vbox = QVBoxLayout(self)
         vbox.addWidget(WWLabel(_('Rebalance your channels in order to increase your sending or receiving capacity') + ':'))
         grid = QGridLayout()
-        self.amount_e = FUNKAmountEdit(self.window.get_decimal_point)
+        self.amount_e = PNDAmountEdit(self.window.get_decimal_point)
         self.amount_e.setAmount(amount_sat)
         self.amount_e.textChanged.connect(self.on_amount)
         self.rev_button = QPushButton(u'\U000021c4')

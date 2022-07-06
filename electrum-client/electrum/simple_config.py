@@ -230,7 +230,7 @@ class SimpleConfig(Logger):
         base_unit = self.user_config.get('base_unit')
         if isinstance(base_unit, str):
             self._set_key_in_user_config('base_unit', None)
-            map_ = {'FUNK':8, 'mFUNK':5, 'uFUNK':2, 'bits':2, 'sat':0}
+            map_ = {'PND':8, 'mPND':5, 'uPND':2, 'bits':2, 'sat':0}
             decimal_point = map_.get(base_unit.lower())
             self._set_key_in_user_config('decimal_point', decimal_point)
 
@@ -582,7 +582,7 @@ class SimpleConfig(Logger):
 
         fee_level: float between 0.0 and 1.0, representing fee slider position
         """
-        if constants.net is constants.BitcoinRegtest:
+        if constants.net is constants.PandacoinRegtest:
             return FEERATE_REGTEST_HARDCODED
         if dyn is None:
             dyn = self.is_dynfee()

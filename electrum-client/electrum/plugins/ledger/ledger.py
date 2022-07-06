@@ -42,7 +42,7 @@ except ImportError as e:
 
 MSG_NEEDS_FW_UPDATE_GENERIC = _('Firmware version too old. Please update at') + \
                       ' https://www.ledgerwallet.com'
-MSG_NEEDS_FW_UPDATE_SEGWIT = _('Firmware version (or "Bitcoin" app) too old for Segwit support. Please update at') + \
+MSG_NEEDS_FW_UPDATE_SEGWIT = _('Firmware version (or "Pandacoin" app) too old for Segwit support. Please update at') + \
                       ' https://www.ledgerwallet.com'
 MULTI_OUTPUT_SUPPORT = '1.1.4'
 SEGWIT_SUPPORT = '1.1.10'
@@ -227,7 +227,7 @@ class Ledger_Client(HardwareClientBase):
                 self.perform_hw1_preflight()
             except btchipException as e:
                 if (e.sw == 0x6d00 or e.sw == 0x6700):
-                    raise UserFacingException(_("Device not in Bitcoin mode")) from e
+                    raise UserFacingException(_("Device not in Pandacoin mode")) from e
                 raise e
             self.preflightDone = True
 
@@ -416,7 +416,7 @@ class Ledger_KeyStore(Hardware_KeyStore):
             if not txout.address:
                 if client_electrum.is_hw1():
                     self.give_error(_("Only address outputs are supported by {}").format(self.device))
-                # note: max_size based on https://github.com/LedgerHQ/ledger-app-FUNK/commit/3a78dee9c0484821df58975803e40d58fbfc2c38#diff-c61ccd96a6d8b54d48f54a3bc4dfa7e2R26
+                # note: max_size based on https://github.com/LedgerHQ/ledger-app-PND/commit/3a78dee9c0484821df58975803e40d58fbfc2c38#diff-c61ccd96a6d8b54d48f54a3bc4dfa7e2R26
                 validate_op_return_output(txout, max_size=190)
 
         # Output "change" detection

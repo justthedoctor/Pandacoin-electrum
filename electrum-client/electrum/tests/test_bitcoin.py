@@ -8,7 +8,7 @@ from electrum.bitcoin import (public_key_to_p2pkh, address_from_private_key,
                               is_b58_address, address_to_scripthash, is_minikey,
                               is_compressed_privkey, EncodeBase58Check, DecodeBase58Check,
                               script_num_to_hex, push_script, add_number_to_script, int_to_hex,
-                              opcodes, base_encode, base_decode, BitcoinException)
+                              opcodes, base_encode, base_decode, PandacoinException)
 from electrum import bip32
 from electrum import segwit_addr
 from electrum.segwit_addr import DecodedBech32
@@ -434,7 +434,7 @@ class Test_bitcoin(ElectrumTestCase):
         self.assertEqual(_op_push(0x12345678), '4e78563412')
 
     def test_script_num_to_hex(self):
-        # test vectors from https://github.com/FUNKsuite/FUNKd/blob/fdc2bc867bda6b351191b5872d2da8270df00d13/txscript/scriptnum.go#L77
+        # test vectors from https://github.com/PNDsuite/PNDd/blob/fdc2bc867bda6b351191b5872d2da8270df00d13/txscript/scriptnum.go#L77
         self.assertEqual(script_num_to_hex(127), '7f')
         self.assertEqual(script_num_to_hex(-127), 'ff')
         self.assertEqual(script_num_to_hex(128), '8000')
@@ -1135,12 +1135,12 @@ class Test_keyImport(ElectrumTestCase):
                              is_compressed_privkey(priv_details['priv']))
 
     def test_segwit_uncompressed_pubkey(self):
-        with self.assertRaises(BitcoinException):
+        with self.assertRaises(PandacoinException):
             is_private_key("p2wpkh-p2sh:5JKXxT3wAZHcybJ9YNkuHur9vou6uuAnorBV9A8vVxGNFH5wvTW",
                            raise_on_error=True)
 
     def test_wif_with_invalid_magic_byte_for_compressed_pubkey(self):
-        with self.assertRaises(BitcoinException):
+        with self.assertRaises(PandacoinException):
             is_private_key("KwFAa6AumokBD2dVqQLPou42jHiVsvThY1n25HJ8Ji8REf1wxAQb",
                            raise_on_error=True)
 

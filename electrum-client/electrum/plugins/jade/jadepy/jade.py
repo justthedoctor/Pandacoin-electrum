@@ -374,7 +374,7 @@ class JadeAPI:
             params['vbf'] = vbf
         return self._jadeRpc('get_commitments', params)
 
-    # Common code for sending FUNK- and liquid- tx-inputs and receiving the
+    # Common code for sending PND- and liquid- tx-inputs and receiving the
     # signatures.  Handles standard EC and AE signing schemes.
     def _send_tx_inputs(self, base_id, inputs, use_ae_signatures):
         if use_ae_signatures:

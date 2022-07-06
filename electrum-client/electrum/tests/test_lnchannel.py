@@ -227,8 +227,8 @@ class TestChannel(ElectrumTestCase):
     def setUp(self):
         super().setUp()
         # Create a test channel which will be used for the duration of this
-        # unittest. The channel will be funded evenly with Alice having 5 FUNK,
-        # and Bob having 5 FUNK.
+        # unittest. The channel will be funded evenly with Alice having 5 PND,
+        # and Bob having 5 PND.
         self.alice_channel, self.bob_channel = create_test_channels()
 
         self.paymentPreimage = b"\x01" * 32
@@ -488,9 +488,9 @@ class TestChannel(ElectrumTestCase):
         self.assertEqual(one_bitcoin_in_msat, received)
         alice_channel.receive_revocation(bobRevocation2)
 
-        # At this point, Bob should have 6 FUNK settled, with Alice still having
-        # 4 FUNK. Alice's channel should show 1 FUNK sent and Bob's channel
-        # should show 1 FUNK received. They should also be at commitment height
+        # At this point, Bob should have 6 PND settled, with Alice still having
+        # 4 PND. Alice's channel should show 1 PND sent and Bob's channel
+        # should show 1 PND received. They should also be at commitment height
         # two, with the revocation window extended by 1 (5).
         mSatTransferred = one_bitcoin_in_msat
         self.assertEqual(alice_channel.total_msat(SENT), mSatTransferred, "alice satoshis sent incorrect")
@@ -625,8 +625,8 @@ class TestChannel(ElectrumTestCase):
         self.alice_channel.add_htlc(self.htlc_dict)
         # now there are three htlcs (one was in setUp)
 
-        # Alice now has an available balance of 2 FUNK. We'll add a new HTLC of
-        # value 2 FUNK, which should make Alice's balance negative (since she
+        # Alice now has an available balance of 2 PND. We'll add a new HTLC of
+        # value 2 PND, which should make Alice's balance negative (since she
         # has to pay a commitment fee).
         new = dict(self.htlc_dict)
         new['amount_msat'] *= 2.5
@@ -661,12 +661,12 @@ class TestAvailableToSpend(ElectrumTestCase):
         alice_channel.receive_fail_htlc(alice_idx, error_bytes=None)
         self.assertEqual(89984088000, alice_channel.available_to_spend(LOCAL))
         self.assertEqual(500000000000, bob_channel.available_to_spend(LOCAL))
-        # Alice now has gotten all her original balance (5 FUNK) back, however,
+        # Alice now has gotten all her original balance (5 PND) back, however,
         # adding a new HTLC at this point SHOULD fail, since if she adds the
         # HTLC and signs the next state, Bob cannot assume she received the
         # FailHTLC, and must assume she doesn't have the necessary balance
         # available.
-        # We try adding an HTLC of value 1 FUNK, which should fail because the
+        # We try adding an HTLC of value 1 PND, which should fail because the
         # balance is unavailable.
         htlc_dict = {
             'payment_hash' : paymentHash,
@@ -748,8 +748,8 @@ class TestChanReserve(ElectrumTestCase):
     def part2(self):
         paymentPreimage = b"\x01" * 32
         paymentHash = bitcoin.sha256(paymentPreimage)
-        # Now we'll add HTLC of 3.5 FUNK to Alice's commitment, this should put
-        # Alice's balance at 1.5 FUNK.
+        # Now we'll add HTLC of 3.5 PND to Alice's commitment, this should put
+        # Alice's balance at 1.5 PND.
         #
         # Resulting balances:
         #	Alice:	1.5
@@ -761,7 +761,7 @@ class TestChanReserve(ElectrumTestCase):
         }
         self.alice_channel.add_htlc(htlc_dict)
         self.bob_channel.receive_htlc(htlc_dict)
-        # Add a second HTLC of 1 FUNK. This should fail because it will take
+        # Add a second HTLC of 1 PND. This should fail because it will take
         # Alice's balance all the way down to her channel reserve, but since
         # she is the initiator the additional transaction fee makes her
         # balance dip below.
@@ -772,7 +772,7 @@ class TestChanReserve(ElectrumTestCase):
             self.bob_channel.receive_htlc(htlc_dict)
 
     def part3(self):
-        # Add a HTLC of 2 FUNK to Alice, and the settle it.
+        # Add a HTLC of 2 PND to Alice, and the settle it.
         # Resulting balances:
         #	Alice:	3.0
         #	Bob:	7.0
@@ -796,7 +796,7 @@ class TestChanReserve(ElectrumTestCase):
         self.check_bals(one_bitcoin_in_msat * 3
                         - self.alice_channel.get_next_fee(LOCAL),
                         one_bitcoin_in_msat * 7)
-        # And now let Bob add an HTLC of 1 FUNK. This will take Bob's balance
+        # And now let Bob add an HTLC of 1 PND. This will take Bob's balance
         # all the way down to his channel reserve, but since he is not paying
         # the fee this is okay.
         htlc_dict['amount_msat'] = one_bitcoin_in_msat

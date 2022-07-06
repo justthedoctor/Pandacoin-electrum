@@ -10,7 +10,7 @@ from electrum.transaction import PartialTxOutput, PartialTransaction
 
 from .util import (WindowModalDialog, Buttons, OkButton, CancelButton,
                    EnterButton, ColorScheme, WWLabel, read_QIcon, IconLabel)
-from .amountedit import FUNKAmountEdit
+from .amountedit import PNDAmountEdit
 from .fee_slider import FeeSlider, FeeComboBox
 
 if TYPE_CHECKING:
@@ -40,8 +40,8 @@ class SwapDialog(WindowModalDialog):
         self.is_reverse = is_reverse if is_reverse is not None else True
         vbox = QVBoxLayout(self)
         self.description_label = WWLabel(self.get_description())
-        self.send_amount_e = FUNKAmountEdit(self.window.get_decimal_point)
-        self.recv_amount_e = FUNKAmountEdit(self.window.get_decimal_point)
+        self.send_amount_e = PNDAmountEdit(self.window.get_decimal_point)
+        self.recv_amount_e = PNDAmountEdit(self.window.get_decimal_point)
         self.max_button = EnterButton(_("Max"), self.spend_max)
         self.max_button.setFixedWidth(100)
         self.max_button.setCheckable(True)

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Electrum - lightweight Bitcoin client
+# Electrum - lightweight Pandacoin client
 # Copyright (C) 2015 Thomas Voegtlin
 #
 # Permission is hereby granted, free of charge, to any person
@@ -589,13 +589,13 @@ class HistoryList(MyTreeView, AcceptFileDragDrop):
         grid.addWidget(QLabel(self.format_date(start_date)), 1, 1)
         grid.addWidget(QLabel(self.format_date(end_date)), 1, 2)
         #
-        grid.addWidget(QLabel(_("FUNK balance")), 2, 0)
-        grid.addWidget(QLabel(format_amount(start['FUNK_balance'])), 2, 1)
-        grid.addWidget(QLabel(format_amount(end['FUNK_balance'])), 2, 2)
+        grid.addWidget(QLabel(_("PND balance")), 2, 0)
+        grid.addWidget(QLabel(format_amount(start['PND_balance'])), 2, 1)
+        grid.addWidget(QLabel(format_amount(end['PND_balance'])), 2, 2)
         #
-        grid.addWidget(QLabel(_("FUNK Fiat price")), 3, 0)
-        grid.addWidget(QLabel(format_fiat(start.get('FUNK_fiat_price'))), 3, 1)
-        grid.addWidget(QLabel(format_fiat(end.get('FUNK_fiat_price'))), 3, 2)
+        grid.addWidget(QLabel(_("PND Fiat price")), 3, 0)
+        grid.addWidget(QLabel(format_fiat(start.get('PND_fiat_price'))), 3, 1)
+        grid.addWidget(QLabel(format_fiat(end.get('PND_fiat_price'))), 3, 2)
         #
         grid.addWidget(QLabel(_("Fiat balance")), 4, 0)
         grid.addWidget(QLabel(format_fiat(start.get('fiat_balance'))), 4, 1)
@@ -610,12 +610,12 @@ class HistoryList(MyTreeView, AcceptFileDragDrop):
         grid.addWidget(QLabel(format_fiat(end.get('unrealized_gains', ''))), 6, 2)
         #
         grid2 = QGridLayout()
-        grid2.addWidget(QLabel(_("FUNK incoming")), 0, 0)
-        grid2.addWidget(QLabel(format_amount(flow['FUNK_incoming'])), 0, 1)
+        grid2.addWidget(QLabel(_("PND incoming")), 0, 0)
+        grid2.addWidget(QLabel(format_amount(flow['PND_incoming'])), 0, 1)
         grid2.addWidget(QLabel(_("Fiat incoming")), 1, 0)
         grid2.addWidget(QLabel(format_fiat(flow.get('fiat_incoming'))), 1, 1)
-        grid2.addWidget(QLabel(_("FUNK outgoing")), 2, 0)
-        grid2.addWidget(QLabel(format_amount(flow['FUNK_outgoing'])), 2, 1)
+        grid2.addWidget(QLabel(_("PND outgoing")), 2, 0)
+        grid2.addWidget(QLabel(format_amount(flow['PND_outgoing'])), 2, 1)
         grid2.addWidget(QLabel(_("Fiat outgoing")), 3, 0)
         grid2.addWidget(QLabel(format_fiat(flow.get('fiat_outgoing'))), 3, 1)
         #

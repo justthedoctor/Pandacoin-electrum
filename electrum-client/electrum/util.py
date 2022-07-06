@@ -1,4 +1,4 @@
-# Electrum - lightweight Bitcoin client
+# Electrum - lightweight Pandacoin client
 # Copyright (C) 2011 Thomas Voegtlin
 #
 # Permission is hereby granted, free of charge, to any person
@@ -82,18 +82,18 @@ def all_subclasses(cls) -> Set:
 ca_path = certifi.where()
 
 
-base_units = {'FUNK':8, 'mFUNK':5, 'bits':2, 'sat':0}
+base_units = {'PND':8, 'mPND':5, 'bits':2, 'sat':0}
 base_units_inverse = inv_dict(base_units)
-base_units_list = ['FUNK', 'mFUNK', 'bits', 'sat']  # list(dict) does not guarantee order
+base_units_list = ['PND', 'mPND', 'bits', 'sat']  # list(dict) does not guarantee order
 
-DECIMAL_POINT_DEFAULT = 5  # mFUNK
+DECIMAL_POINT_DEFAULT = 5  # mPND
 
 
 class UnknownBaseUnit(Exception): pass
 
 
 def decimal_point_to_base_unit_name(dp: int) -> str:
-    # e.g. 8 -> "FUNK"
+    # e.g. 8 -> "PND"
     try:
         return base_units_inverse[dp]
     except KeyError:
@@ -101,7 +101,7 @@ def decimal_point_to_base_unit_name(dp: int) -> str:
 
 
 def base_unit_name_to_decimal_point(unit_name: str) -> int:
-    # e.g. "FUNK" -> 8
+    # e.g. "PND" -> 8
     try:
         return base_units[unit_name]
     except KeyError:
@@ -176,7 +176,7 @@ class FileExportFailed(Exception):
 class WalletFileException(Exception): pass
 
 
-class BitcoinException(Exception): pass
+class PandacoinException(Exception): pass
 
 
 class UserFacingException(Exception):
@@ -580,11 +580,11 @@ def user_dir():
     elif 'ANDROID_DATA' in os.environ:
         return android_data_dir()
     elif os.name == 'posix':
-        return os.path.join(os.environ["HOME"], ".electrum")
+        return os.path.join(os.environ["HOME"], ".electrum-pnd")
     elif "APPDATA" in os.environ:
-        return os.path.join(os.environ["APPDATA"], "Electrum")
+        return os.path.join(os.environ["APPDATA"], "Electrum-Pnd")
     elif "LOCALAPPDATA" in os.environ:
-        return os.path.join(os.environ["LOCALAPPDATA"], "Electrum")
+        return os.path.join(os.environ["LOCALAPPDATA"], "Electrum-Pnd")
     else:
         #raise Exception("No home directory found in environment variables.")
         return
@@ -652,7 +652,7 @@ def chunks(items, size: int):
 def format_satoshis_plain(
         x: Union[int, float, Decimal, str],  # amount in satoshis,
         *,
-        decimal_point: int = 8,  # how much to shift decimal point to left (default: sat->FUNK)
+        decimal_point: int = 8,  # how much to shift decimal point to left (default: sat->PND)
 ) -> str:
     """Display a satoshi amount scaled.  Always uses a '.' as a decimal
     point and has no thousands separator"""
@@ -677,7 +677,7 @@ def format_satoshis(
         x: Union[int, float, Decimal, str, None],  # amount in satoshis
         *,
         num_zeros: int = 0,
-        decimal_point: int = 8,  # how much to shift decimal point to left (default: sat->FUNK)
+        decimal_point: int = 8,  # how much to shift decimal point to left (default: sat->PND)
         precision: int = 0,  # extra digits after satoshi precision
         is_diff: bool = False,  # if True, enforce a leading sign (+/-)
         whitespaces: bool = False,  # if True, add whitespaces, to align numbers in a column
@@ -716,7 +716,7 @@ def format_satoshis(
     # add leading/trailing whitespaces so that numbers can be aligned in a column
     if whitespaces:
         target_fract_len = overall_precision
-        target_integer_len = 14 - decimal_point  # should be enough for up to unsigned 999999 FUNK
+        target_integer_len = 14 - decimal_point  # should be enough for up to unsigned 999999 PND
         if add_thousands_sep:
             target_fract_len += max(0, (target_fract_len - 1) // 3)
             target_integer_len += max(0, (target_integer_len - 1) // 3)
@@ -799,52 +799,16 @@ def time_difference(distance_in_time, include_seconds):
         return "over %d years" % (round(distance_in_minutes / 525600))
 
 mainnet_block_explorers = {
-    'Bitupper Explorer': ('https://bitupper.com/en/explorer/bitcoin/',
-                        {'tx': 'transactions/', 'addr': 'addresses/'}),
-    'Bitflyer.jp': ('https://chainflyer.bitflyer.jp/',
-                        {'tx': 'Transaction/', 'addr': 'Address/'}),
-    'Blockchain.info': ('https://blockchain.com/FUNK/',
-                        {'tx': 'tx/', 'addr': 'address/'}),
-    'blockchainbdgpzk.onion': ('https://blockchainbdgpzk.onion/',
-                        {'tx': 'tx/', 'addr': 'address/'}),
-    'Blockstream.info': ('https://blockstream.info/',
-                        {'tx': 'tx/', 'addr': 'address/'}),
-    'Bitaps.com': ('https://FUNK.bitaps.com/',
-                        {'tx': '', 'addr': ''}),
-    'FUNK.com': ('https://FUNK.com/',
-                        {'tx': '', 'addr': ''}),
-    'Chain.so': ('https://www.chain.so/',
-                        {'tx': 'tx/FUNK/', 'addr': 'address/FUNK/'}),
-    'Insight.is': ('https://insight.bitpay.com/',
-                        {'tx': 'tx/', 'addr': 'address/'}),
-    'TradeBlock.com': ('https://tradeblock.com/blockchain/',
-                        {'tx': 'tx/', 'addr': 'address/'}),
-    'BlockCypher.com': ('https://live.blockcypher.com/FUNK/',
-                        {'tx': 'tx/', 'addr': 'address/'}),
-    'Blockchair.com': ('https://blockchair.com/bitcoin/',
-                        {'tx': 'transaction/', 'addr': 'address/'}),
-    'blockonomics.co': ('https://www.blockonomics.co/',
-                        {'tx': 'api/tx?txid=', 'addr': '#/search?q='}),
-    'mempool.space': ('https://mempool.space/',
-                        {'tx': 'tx/', 'addr': 'address/'}),
-    'mempool.emzy.de': ('https://mempool.emzy.de/',
-                        {'tx': 'tx/', 'addr': 'address/'}),
-    'OXT.me': ('https://oxt.me/',
-                        {'tx': 'transaction/', 'addr': 'address/'}),
-    'smartbit.com.au': ('https://www.smartbit.com.au/',
-                        {'tx': 'tx/', 'addr': 'address/'}),
-    'mynode.local': ('http://mynode.local:3002/',
-                        {'tx': 'tx/', 'addr': 'address/'}),
-    'system default': ('blockchain:/',
-                        {'tx': 'tx/', 'addr': 'address/'}),
+    'Chain.so': ('https://chainz.cryptoid.info/pnd/',
+                        {'tx': 'tx.dws?', 'addr': 'address.dws?'}),
 }
 
 testnet_block_explorers = {
-    'Bitaps.com': ('https://tFUNK.bitaps.com/',
+    'Bitaps.com': ('https://tPND.bitaps.com/',
                        {'tx': '', 'addr': ''}),
-    'BlockCypher.com': ('https://live.blockcypher.com/FUNK-testnet/',
+    'BlockCypher.com': ('https://live.blockcypher.com/PND-testnet/',
                        {'tx': 'tx/', 'addr': 'address/'}),
-    'Blockchain.info': ('https://www.blockchain.com/FUNK-testnet/',
+    'Blockchain.info': ('https://www.blockchain.com/PND-testnet/',
                        {'tx': 'tx/', 'addr': 'address/'}),
     'Blockstream.info': ('https://blockstream.info/testnet/',
                         {'tx': 'tx/', 'addr': 'address/'}),
@@ -934,27 +898,27 @@ BITCOIN_BIP21_URI_SCHEME = 'bitcoin'
 LIGHTNING_URI_SCHEME = 'lightning'
 
 
-class InvalidBitcoinURI(Exception): pass
+class InvalidPandacoinURI(Exception): pass
 
 
 # TODO rename to parse_bip21_uri or similar
 def parse_URI(uri: str, on_pr: Callable = None, *, loop=None) -> dict:
-    """Raises InvalidBitcoinURI on malformed URI."""
+    """Raises InvalidPandacoinURI on malformed URI."""
     from . import bitcoin
-    from .bitcoin import COIN, TOTAL_COIN_SUPPLY_LIMIT_IN_FUNK
+    from .bitcoin import COIN, TOTAL_COIN_SUPPLY_LIMIT_IN_PND
     from .lnaddr import lndecode
 
     if not isinstance(uri, str):
-        raise InvalidBitcoinURI(f"expected string, not {repr(uri)}")
+        raise InvalidPandacoinURI(f"expected string, not {repr(uri)}")
 
     if ':' not in uri:
         if not bitcoin.is_address(uri):
-            raise InvalidBitcoinURI("Not a bitcoin address")
+            raise InvalidPandacoinURI("Not a bitcoin address")
         return {'address': uri}
 
     u = urllib.parse.urlparse(uri)
     if u.scheme.lower() != BITCOIN_BIP21_URI_SCHEME:
-        raise InvalidBitcoinURI("Not a bitcoin URI")
+        raise InvalidPandacoinURI("Not a bitcoin URI")
     address = u.path
 
     # python for android fails to parse query
@@ -966,12 +930,12 @@ def parse_URI(uri: str, on_pr: Callable = None, *, loop=None) -> dict:
 
     for k, v in pq.items():
         if len(v) != 1:
-            raise InvalidBitcoinURI(f'Duplicate Key: {repr(k)}')
+            raise InvalidPandacoinURI(f'Duplicate Key: {repr(k)}')
 
     out = {k: v[0] for k, v in pq.items()}
     if address:
         if not bitcoin.is_address(address):
-            raise InvalidBitcoinURI(f"Invalid bitcoin address: {address}")
+            raise InvalidPandacoinURI(f"Invalid bitcoin address: {address}")
         out['address'] = address
     if 'amount' in out:
         am = out['amount']
@@ -982,11 +946,11 @@ def parse_URI(uri: str, on_pr: Callable = None, *, loop=None) -> dict:
                 amount = Decimal(m.group(1)) * pow(Decimal(10), k)
             else:
                 amount = Decimal(am) * COIN
-            if amount > TOTAL_COIN_SUPPLY_LIMIT_IN_FUNK * COIN:
-                raise InvalidBitcoinURI(f"amount is out-of-bounds: {amount!r} FUNK")
+            if amount > TOTAL_COIN_SUPPLY_LIMIT_IN_PND * COIN:
+                raise InvalidPandacoinURI(f"amount is out-of-bounds: {amount!r} PND")
             out['amount'] = int(amount)
         except Exception as e:
-            raise InvalidBitcoinURI(f"failed to parse 'amount' field: {repr(e)}") from e
+            raise InvalidPandacoinURI(f"failed to parse 'amount' field: {repr(e)}") from e
     if 'message' in out:
         out['message'] = out['message']
         out['memo'] = out['message']
@@ -994,17 +958,17 @@ def parse_URI(uri: str, on_pr: Callable = None, *, loop=None) -> dict:
         try:
             out['time'] = int(out['time'])
         except Exception as e:
-            raise InvalidBitcoinURI(f"failed to parse 'time' field: {repr(e)}") from e
+            raise InvalidPandacoinURI(f"failed to parse 'time' field: {repr(e)}") from e
     if 'exp' in out:
         try:
             out['exp'] = int(out['exp'])
         except Exception as e:
-            raise InvalidBitcoinURI(f"failed to parse 'exp' field: {repr(e)}") from e
+            raise InvalidPandacoinURI(f"failed to parse 'exp' field: {repr(e)}") from e
     if 'sig' in out:
         try:
             out['sig'] = bh2u(bitcoin.base_decode(out['sig'], base=58))
         except Exception as e:
-            raise InvalidBitcoinURI(f"failed to parse 'sig' field: {repr(e)}") from e
+            raise InvalidPandacoinURI(f"failed to parse 'sig' field: {repr(e)}") from e
     if 'lightning' in out:
         try:
             lnaddr = lndecode(out['lightning'])
@@ -1015,7 +979,7 @@ def parse_URI(uri: str, on_pr: Callable = None, *, loop=None) -> dict:
             if address:
                 assert lnaddr.get_fallback_address() == address
         except Exception as e:
-            raise InvalidBitcoinURI(f"Inconsistent lightning field: {repr(e)}") from e
+            raise InvalidPandacoinURI(f"Inconsistent lightning field: {repr(e)}") from e
 
     r = out.get('r')
     sig = out.get('sig')

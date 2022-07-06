@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 # -*- mode: python -*-
 #
-# Electrum - lightweight Bitcoin client
+# Electrum - lightweight Pandacoin client
 # Copyright (C) 2016  The Electrum developers
 #
 # Permission is hereby granted, free of charge, to any person
@@ -41,7 +41,7 @@ from .ecc import string_to_number
 from .crypto import (pw_decode, pw_encode, sha256, sha256d, PW_HASH_VERSION_LATEST,
                      SUPPORTED_PW_HASH_VERSIONS, UnsupportedPasswordHashVersion, hash_160)
 from .util import (InvalidPassword, WalletFileException,
-                   BitcoinException, bh2u, bfh, inv_dict, is_hex_str)
+                   PandacoinException, bh2u, bfh, inv_dict, is_hex_str)
 from .mnemonic import Mnemonic, Wordlist, seed_type, is_seed
 from .plugin import run_hook
 from .logging import Logger
@@ -1084,7 +1084,7 @@ def from_seed(seed, passphrase, is_p2sh=False):
             xtype = 'p2wsh' if is_p2sh else 'p2wpkh'
         keystore.add_xprv_from_seed(bip32_seed, xtype, der)
     else:
-        raise BitcoinException('Unexpected seed type {}'.format(repr(t)))
+        raise PandacoinException('Unexpected seed type {}'.format(repr(t)))
     return keystore
 
 def from_private_key_list(text):
@@ -1116,5 +1116,5 @@ def from_master_key(text):
     elif is_xpub(text):
         k = from_xpub(text)
     else:
-        raise BitcoinException('Invalid master key')
+        raise PandacoinException('Invalid master key')
     return k

@@ -321,7 +321,7 @@ class ElectrumWindow(App, Logger):
     def decimal_point(self):
         return self.electrum_config.get_decimal_point()
 
-    def FUNK_to_fiat(self, amount_str):
+    def PND_to_fiat(self, amount_str):
         if not amount_str:
             return ''
         if not self.fx.is_enabled():
@@ -332,7 +332,7 @@ class ElectrumWindow(App, Logger):
         fiat_amount = self.get_amount(amount_str + ' ' + self.base_unit) * rate / COIN
         return "{:.2f}".format(fiat_amount).rstrip('0').rstrip('.')
 
-    def fiat_to_FUNK(self, fiat_amount):
+    def fiat_to_PND(self, fiat_amount):
         if not fiat_amount:
             return ''
         rate = self.fx.exchange_rate()

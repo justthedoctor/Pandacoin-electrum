@@ -157,9 +157,9 @@ class SwapManager(Logger):
             if swap.is_reverse and swap.prepay_hash is not None:
                 self.prepayments[swap.prepay_hash] = bytes.fromhex(k)
         # api url
-        if constants.net == constants.BitcoinMainnet:
+        if constants.net == constants.PandacoinMainnet:
             self.api_url = API_URL_MAINNET
-        elif constants.net == constants.BitcoinTestnet:
+        elif constants.net == constants.PandacoinTestnet:
             self.api_url = API_URL_TESTNET
         else:
             self.api_url = API_URL_REGTEST
@@ -262,7 +262,7 @@ class SwapManager(Logger):
             tx: PartialTransaction = None,
             channels = None,
     ) -> str:
-        """send on-chain FUNK, receive on Lightning
+        """send on-chain PND, receive on Lightning
 
         - User generates an LN invoice with RHASH, and knows preimage.
         - User creates on-chain output locked to RHASH.
@@ -284,7 +284,7 @@ class SwapManager(Logger):
         preimage = self.lnworker.get_preimage(payment_hash)
         request_data = {
             "type": "submarine",
-            "pairId": "FUNK/FUNK",
+            "pairId": "PND/PND",
             "orderSide": "sell",
             "invoice": invoice,
             "refundPublicKey": pubkey.hex()
@@ -379,7 +379,7 @@ class SwapManager(Logger):
         preimage_hash = sha256(preimage)
         request_data = {
             "type": "reversesubmarine",
-            "pairId": "FUNK/FUNK",
+            "pairId": "PND/PND",
             "orderSide": "buy",
             "invoiceAmount": lightning_amount_sat,
             "preimageHash": preimage_hash.hex(),
@@ -475,11 +475,11 @@ class SwapManager(Logger):
             self.api_url + '/getpairs',
             timeout=30)
         pairs = json.loads(response)
-        fees = pairs['pairs']['FUNK/FUNK']['fees']
+        fees = pairs['pairs']['PND/PND']['fees']
         self.percentage = fees['percentage']
         self.normal_fee = fees['minerFees']['baseAsset']['normal']
         self.lockup_fee = fees['minerFees']['baseAsset']['reverse']['lockup']
-        limits = pairs['pairs']['FUNK/FUNK']['limits']
+        limits = pairs['pairs']['PND/PND']['limits']
         self.min_amount = limits['minimal']
         self._max_amount = limits['maximal']
 

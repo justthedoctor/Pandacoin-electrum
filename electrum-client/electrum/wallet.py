@@ -1,4 +1,4 @@
-# Electrum - lightweight Bitcoin client
+# Electrum - lightweight Pandacoin client
 # Copyright (C) 2015 Thomas Voegtlin
 #
 # Permission is hereby granted, free of charge, to any person
@@ -55,7 +55,7 @@ from .crypto import sha256
 from . import util
 from .util import (NotEnoughFunds, UserCancelled, profiler, OldTaskGroup, ignore_exceptions,
                    format_satoshis, format_fee_satoshis, NoDynamicFeeEstimates,
-                   WalletFileException, BitcoinException,
+                   WalletFileException, PandacoinException,
                    InvalidPassword, format_time, timestamp_to_datetime, Satoshis,
                    Fiat, bfh, bh2u, TxMinedInfo, quantize_feerate, create_bip21_uri, OrderedDictWithIndex, parse_max_spend)
 from .simple_config import SimpleConfig, FEE_RATIO_HIGH_WARNING, FEERATE_WARNING_HIGH_FEE
@@ -1234,7 +1234,7 @@ class Abstract_Wallet(ABC, Logger):
                 out = {
                     'date': date,
                     'block_height': height,
-                    'FUNK_balance': Satoshis(balance),
+                    'PND_balance': Satoshis(balance),
                 }
                 if show_fiat:
                     ap = self.acquisition_price(coins, fx.timestamp_rate, fx.ccy)
@@ -1243,14 +1243,14 @@ class Abstract_Wallet(ABC, Logger):
                     out['liquidation_price'] = Fiat(lp, fx.ccy)
                     out['unrealized_gains'] = Fiat(lp - ap, fx.ccy)
                     out['fiat_balance'] = Fiat(fx.historical_value(balance, date), fx.ccy)
-                    out['FUNK_fiat_price'] = Fiat(fx.historical_value(COIN, date), fx.ccy)
+                    out['PND_fiat_price'] = Fiat(fx.historical_value(COIN, date), fx.ccy)
                 return out
 
             summary_start = summary_point(start_timestamp, start_height, start_balance, start_coins)
             summary_end = summary_point(end_timestamp, end_height, end_balance, end_coins)
             flow = {
-                'FUNK_incoming': Satoshis(income),
-                'FUNK_outgoing': Satoshis(expenditures)
+                'PND_incoming': Satoshis(income),
+                'PND_outgoing': Satoshis(expenditures)
             }
             if show_fiat:
                 flow['fiat_currency'] = fx.ccy
@@ -2340,7 +2340,7 @@ class Abstract_Wallet(ABC, Logger):
         is_lightning = x.is_lightning()
         d = {
             'is_lightning': is_lightning,
-            'amount_FUNK': format_satoshis(x.get_amount_sat()),
+            'amount_PND': format_satoshis(x.get_amount_sat()),
             'message': x.message,
             'timestamp': x.get_time(),
             'expiration': x.get_expiration_date(),
@@ -2379,7 +2379,7 @@ class Abstract_Wallet(ABC, Logger):
         is_lightning = x.is_lightning()
         d = {
             'is_lightning': is_lightning,
-            'amount_FUNK': format_satoshis(x.get_amount_sat()),
+            'amount_PND': format_satoshis(x.get_amount_sat()),
             'message': x.message,
             'timestamp': x.time,
             'expiration': x.exp,
@@ -2459,7 +2459,7 @@ class Abstract_Wallet(ABC, Logger):
             addr = req.get_address()
             if sanity_checks:
                 if not bitcoin.is_address(addr):
-                    raise Exception(_('Invalid Bitcoin address.'))
+                    raise Exception(_('Invalid Pandacoin address.'))
                 if not self.is_mine(addr):
                     raise Exception(_('Address not in wallet.'))
             key = addr
@@ -2890,7 +2890,7 @@ class Imported_Wallet(Simple_Wallet):
         if good_addr and good_addr[0] == address:
             return address
         else:
-            raise BitcoinException(str(bad_addr[0][1]))
+            raise PandacoinException(str(bad_addr[0][1]))
 
     def delete_address(self, address: str) -> None:
         if not self.db.has_imported_address(address):
@@ -2990,7 +2990,7 @@ class Imported_Wallet(Simple_Wallet):
         if good_addr:
             return good_addr[0]
         else:
-            raise BitcoinException(str(bad_keys[0][1]))
+            raise PandacoinException(str(bad_keys[0][1]))
 
     def get_txin_type(self, address):
         return self.db.get_imported_address(address).get('type', 'address')

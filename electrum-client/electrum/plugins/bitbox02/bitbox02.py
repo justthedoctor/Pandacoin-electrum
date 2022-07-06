@@ -195,15 +195,15 @@ class BitBox02Client(HardwareClientBase):
 
     def coin_network_from_electrum_network(self) -> int:
         if constants.net.TESTNET:
-            return bitbox02.FUNK.TFUNK
-        return bitbox02.FUNK.FUNK
+            return bitbox02.PND.TPND
+        return bitbox02.PND.PND
 
     @runs_in_hwd_thread
     def get_password_for_storage_encryption(self) -> str:
         derivation = get_derivation_used_for_hw_device_encryption()
         derivation_list = bip32.convert_bip32_path_to_list_of_uint32(derivation)
         xpub = self.bitbox02_device.electrum_encryption_key(derivation_list)
-        node = bip32.BIP32Node.from_xkey(xpub, net = constants.BitcoinMainnet()).subkey_at_public_derivation(())
+        node = bip32.BIP32Node.from_xkey(xpub, net = constants.PandacoinMainnet()).subkey_at_public_derivation(())
         return node.eckey.get_public_key_bytes(compressed=True).hex()
 
     @runs_in_hwd_thread
@@ -222,30 +222,30 @@ class BitBox02Client(HardwareClientBase):
         coin_network = self.coin_network_from_electrum_network()
 
         if xtype == "p2wpkh":
-            if coin_network == bitbox02.FUNK.FUNK:
-                out_type = bitbox02.FUNK.FUNKPubRequest.ZPUB
+            if coin_network == bitbox02.PND.PND:
+                out_type = bitbox02.PND.PNDPubRequest.ZPUB
             else:
-                out_type = bitbox02.FUNK.FUNKPubRequest.VPUB
+                out_type = bitbox02.PND.PNDPubRequest.VPUB
         elif xtype == "p2wpkh-p2sh":
-            if coin_network == bitbox02.FUNK.FUNK:
-                out_type = bitbox02.FUNK.FUNKPubRequest.YPUB
+            if coin_network == bitbox02.PND.PND:
+                out_type = bitbox02.PND.PNDPubRequest.YPUB
             else:
-                out_type = bitbox02.FUNK.FUNKPubRequest.UPUB
+                out_type = bitbox02.PND.PNDPubRequest.UPUB
         elif xtype == "p2wsh-p2sh":
-            if coin_network == bitbox02.FUNK.FUNK:
-                out_type = bitbox02.FUNK.FUNKPubRequest.CAPITAL_YPUB
+            if coin_network == bitbox02.PND.PND:
+                out_type = bitbox02.PND.PNDPubRequest.CAPITAL_YPUB
             else:
-                out_type = bitbox02.FUNK.FUNKPubRequest.CAPITAL_UPUB
+                out_type = bitbox02.PND.PNDPubRequest.CAPITAL_UPUB
         elif xtype == "p2wsh":
-            if coin_network == bitbox02.FUNK.FUNK:
-                out_type = bitbox02.FUNK.FUNKPubRequest.CAPITAL_ZPUB
+            if coin_network == bitbox02.PND.PND:
+                out_type = bitbox02.PND.PNDPubRequest.CAPITAL_ZPUB
             else:
-                out_type = bitbox02.FUNK.FUNKPubRequest.CAPITAL_VPUB
+                out_type = bitbox02.PND.PNDPubRequest.CAPITAL_VPUB
         # The other legacy types are not supported
         else:
             raise Exception("invalid xtype:{}".format(xtype))
 
-        return self.bitbox02_device.FUNK_xpub(
+        return self.bitbox02_device.PND_xpub(
             keypath=xpub_keypath,
             xpub_type=out_type,
             coin=coin_network,
@@ -282,7 +282,7 @@ class BitBox02Client(HardwareClientBase):
         return True
 
     @runs_in_hwd_thread
-    def FUNK_multisig_config(
+    def PND_multisig_config(
         self, coin, bip32_path: List[int], wallet: Multisig_Wallet, xtype: str,
     ):
         """
@@ -301,25 +301,25 @@ class BitBox02Client(HardwareClientBase):
             bip32.convert_bip32_intpath_to_strpath(account_keypath), xtype
         )
 
-        multisig_config = bitbox02.FUNK.FUNKScriptConfig(
-            multisig=bitbox02.FUNK.FUNKScriptConfig.Multisig(
+        multisig_config = bitbox02.PND.PNDScriptConfig(
+            multisig=bitbox02.PND.PNDScriptConfig.Multisig(
                 threshold=wallet.m,
                 xpubs=[util.parse_xpub(xpub) for xpub in xpubs],
                 our_xpub_index=xpubs.index(our_xpub),
                 script_type={
-                    "p2wsh": bitbox02.FUNK.FUNKScriptConfig.Multisig.P2WSH,
-                    "p2wsh-p2sh": bitbox02.FUNK.FUNKScriptConfig.Multisig.P2WSH_P2SH,
+                    "p2wsh": bitbox02.PND.PNDScriptConfig.Multisig.P2WSH,
+                    "p2wsh-p2sh": bitbox02.PND.PNDScriptConfig.Multisig.P2WSH_P2SH,
                 }[xtype]
             )
         )
 
-        is_registered = self.bitbox02_device.FUNK_is_script_config_registered(
+        is_registered = self.bitbox02_device.PND_is_script_config_registered(
             coin, multisig_config, account_keypath
         )
         if not is_registered:
             name = self.handler.name_multisig_account()
             try:
-                self.bitbox02_device.FUNK_register_script_config(
+                self.bitbox02_device.PND_register_script_config(
                     coin=coin,
                     script_config=multisig_config,
                     keypath=account_keypath,
@@ -345,16 +345,16 @@ class BitBox02Client(HardwareClientBase):
         coin_network = self.coin_network_from_electrum_network()
 
         if address_type == "p2wpkh":
-            script_config = bitbox02.FUNK.FUNKScriptConfig(
-                simple_type=bitbox02.FUNK.FUNKScriptConfig.P2WPKH
+            script_config = bitbox02.PND.PNDScriptConfig(
+                simple_type=bitbox02.PND.PNDScriptConfig.P2WPKH
             )
         elif address_type == "p2wpkh-p2sh":
-            script_config = bitbox02.FUNK.FUNKScriptConfig(
-                simple_type=bitbox02.FUNK.FUNKScriptConfig.P2WPKH_P2SH
+            script_config = bitbox02.PND.PNDScriptConfig(
+                simple_type=bitbox02.PND.PNDScriptConfig.P2WPKH_P2SH
             )
         elif address_type in ("p2wsh-p2sh", "p2wsh"):
             if type(wallet) is Multisig_Wallet:
-                script_config = self.FUNK_multisig_config(
+                script_config = self.PND_multisig_config(
                     coin_network, address_keypath, wallet, address_type,
                 )
             else:
@@ -366,7 +366,7 @@ class BitBox02Client(HardwareClientBase):
                 )
             )
 
-        return self.bitbox02_device.FUNK_address(
+        return self.bitbox02_device.PND_address(
             keypath=address_keypath,
             coin=coin_network,
             script_config=script_config,
@@ -374,7 +374,7 @@ class BitBox02Client(HardwareClientBase):
         )
 
     def _get_coin(self):
-        return bitbox02.FUNK.TFUNK if constants.net.TESTNET else bitbox02.FUNK.FUNK
+        return bitbox02.PND.TPND if constants.net.TESTNET else bitbox02.PND.PND
 
     @runs_in_hwd_thread
     def sign_transaction(
@@ -394,7 +394,7 @@ class BitBox02Client(HardwareClientBase):
         coin = self._get_coin()
         tx_script_type = None
 
-        # Build FUNKInputType list
+        # Build PNDInputType list
         inputs = []
         for txin in tx.inputs():
             my_pubkey, full_path = keystore.find_my_pubkey_in_txinout(txin)
@@ -408,8 +408,8 @@ class BitBox02Client(HardwareClientBase):
             if prev_tx is None:
                 raise UserFacingException(_('Missing previous tx.'))
 
-            prev_inputs: List[bitbox02.FUNKPrevTxInputType] = []
-            prev_outputs: List[bitbox02.FUNKPrevTxOutputType] = []
+            prev_inputs: List[bitbox02.PNDPrevTxInputType] = []
+            prev_outputs: List[bitbox02.PNDPrevTxOutputType] = []
             for prev_txin in prev_tx.inputs():
                 prev_inputs.append(
                     {
@@ -450,16 +450,16 @@ class BitBox02Client(HardwareClientBase):
                 raise Exception("Cannot mix different input script types")
 
         if tx_script_type == "p2wpkh":
-            tx_script_type = bitbox02.FUNK.FUNKScriptConfig(
-                simple_type=bitbox02.FUNK.FUNKScriptConfig.P2WPKH
+            tx_script_type = bitbox02.PND.PNDScriptConfig(
+                simple_type=bitbox02.PND.PNDScriptConfig.P2WPKH
             )
         elif tx_script_type == "p2wpkh-p2sh":
-            tx_script_type = bitbox02.FUNK.FUNKScriptConfig(
-                simple_type=bitbox02.FUNK.FUNKScriptConfig.P2WPKH_P2SH
+            tx_script_type = bitbox02.PND.PNDScriptConfig(
+                simple_type=bitbox02.PND.PNDScriptConfig.P2WPKH_P2SH
             )
         elif tx_script_type in ("p2wsh-p2sh", "p2wsh"):
             if type(wallet) is Multisig_Wallet:
-                tx_script_type = self.FUNK_multisig_config(coin, full_path, wallet, tx_script_type)
+                tx_script_type = self.PND_multisig_config(coin, full_path, wallet, tx_script_type)
             else:
                 raise Exception("Can only use p2wsh-p2sh or p2wsh with multisig wallets")
         else:
@@ -469,7 +469,7 @@ class BitBox02Client(HardwareClientBase):
                 )
             )
 
-        # Build FUNKOutputType list
+        # Build PNDOutputType list
         outputs = []
         for txout in tx.outputs():
             assert txout.address
@@ -477,22 +477,22 @@ class BitBox02Client(HardwareClientBase):
             if txout.is_change:
                 my_pubkey, change_pubkey_path = keystore.find_my_pubkey_in_txinout(txout)
                 outputs.append(
-                    bitbox02.FUNKOutputInternal(
+                    bitbox02.PNDOutputInternal(
                         keypath=change_pubkey_path, value=txout.value, script_config_index=0,
                     )
                 )
             else:
                 addrtype, payload = bitcoin.address_to_payload(txout.address)
                 if addrtype == OnchainOutputType.P2PKH:
-                    output_type = bitbox02.FUNK.P2PKH
+                    output_type = bitbox02.PND.P2PKH
                 elif addrtype == OnchainOutputType.P2SH:
-                    output_type = bitbox02.FUNK.P2SH
+                    output_type = bitbox02.PND.P2SH
                 elif addrtype == OnchainOutputType.WITVER0_P2WPKH:
-                    output_type = bitbox02.FUNK.P2WPKH
+                    output_type = bitbox02.PND.P2WPKH
                 elif addrtype == OnchainOutputType.WITVER0_P2WSH:
-                    output_type = bitbox02.FUNK.P2WSH
+                    output_type = bitbox02.PND.P2WSH
                 elif addrtype == OnchainOutputType.WITVER1_P2TR:
-                    output_type = bitbox02.FUNK.P2TR
+                    output_type = bitbox02.PND.P2TR
                 else:
                     raise UserFacingException(
                         "Received unsupported output type during transaction signing: {} is not supported by the BitBox02".format(
@@ -500,7 +500,7 @@ class BitBox02Client(HardwareClientBase):
                         )
                     )
                 outputs.append(
-                    bitbox02.FUNKOutputExternal(
+                    bitbox02.PNDOutputExternal(
                         output_type=output_type,
                         output_payload=payload,
                         value=txout.value,
@@ -508,9 +508,9 @@ class BitBox02Client(HardwareClientBase):
                 )
 
         keypath_account = full_path[:-2]
-        sigs = self.bitbox02_device.FUNK_sign(
+        sigs = self.bitbox02_device.PND_sign(
             coin,
-            [bitbox02.FUNK.FUNKScriptConfigWithKeypath(
+            [bitbox02.PND.PNDScriptConfigWithKeypath(
                 script_config=tx_script_type,
                 keypath=keypath_account,
             )],
@@ -534,16 +534,16 @@ class BitBox02Client(HardwareClientBase):
 
         try:
             simple_type = {
-                "p2wpkh-p2sh":bitbox02.FUNK.FUNKScriptConfig.P2WPKH_P2SH,
-                "p2wpkh": bitbox02.FUNK.FUNKScriptConfig.P2WPKH,
+                "p2wpkh-p2sh":bitbox02.PND.PNDScriptConfig.P2WPKH_P2SH,
+                "p2wpkh": bitbox02.PND.PNDScriptConfig.P2WPKH,
             }[script_type]
         except KeyError:
             raise UserFacingException("The BitBox02 does not support signing messages for this address type: {}".format(script_type))
 
-        _, _, signature = self.bitbox02_device.FUNK_sign_msg(
+        _, _, signature = self.bitbox02_device.PND_sign_msg(
             self._get_coin(),
-            bitbox02.FUNK.FUNKScriptConfigWithKeypath(
-                script_config=bitbox02.FUNK.FUNKScriptConfig(
+            bitbox02.PND.PNDScriptConfigWithKeypath(
+                script_config=bitbox02.PND.PNDScriptConfig(
                     simple_type=simple_type,
                 ),
                 keypath=bip32.convert_bip32_path_to_list_of_uint32(keypath),

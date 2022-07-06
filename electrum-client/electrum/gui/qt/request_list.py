@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Electrum - lightweight Bitcoin client
+# Electrum - lightweight Pandacoin client
 # Copyright (C) 2015 Thomas Voegtlin
 #
 # Permission is hereby granted, free of charge, to any person
@@ -174,9 +174,9 @@ class RequestList(MyTreeView):
             return
         menu = QMenu(self)
         if req.get_address():
-            menu.addAction(_("Copy Address"), lambda: self.parent.do_copy(req.get_address(), title='Bitcoin Address'))
+            menu.addAction(_("Copy Address"), lambda: self.parent.do_copy(req.get_address(), title='Pandacoin Address'))
             URI = self.wallet.get_request_URI(req)
-            menu.addAction(_("Copy URI"), lambda: self.parent.do_copy(URI, title='Bitcoin URI'))
+            menu.addAction(_("Copy URI"), lambda: self.parent.do_copy(URI, title='Pandacoin URI'))
         if req.is_lightning():
             menu.addAction(_("Copy Lightning Request"), lambda: self.parent.do_copy(req.lightning_invoice, title='Lightning Request'))
         self.add_copy_menu(menu, idx)

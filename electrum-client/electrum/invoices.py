@@ -9,7 +9,7 @@ from .i18n import _
 from .util import age, InvoiceError
 from .lnaddr import lndecode, LnAddr
 from . import constants
-from .bitcoin import COIN, TOTAL_COIN_SUPPLY_LIMIT_IN_FUNK
+from .bitcoin import COIN, TOTAL_COIN_SUPPLY_LIMIT_IN_PND
 from .bitcoin import address_to_script
 from .transaction import PartialTxOutput
 from .crypto import sha256d
@@ -184,7 +184,7 @@ class Invoice(StoredObject):
         if value is None:
             return
         if isinstance(value, int):
-            if not (0 <= value <= TOTAL_COIN_SUPPLY_LIMIT_IN_FUNK * COIN * 1000):
+            if not (0 <= value <= TOTAL_COIN_SUPPLY_LIMIT_IN_PND * COIN * 1000):
                 raise InvoiceError(f"amount is out-of-bounds: {value!r} msat")
         elif isinstance(value, str):
             if value != '!':
@@ -243,7 +243,7 @@ class Invoice(StoredObject):
         d = self.to_json()
         d.update({
             'pubkey': self._lnaddr.pubkey.serialize().hex(),
-            'amount_FUNK': str(self._lnaddr.amount),
+            'amount_PND': str(self._lnaddr.amount),
             'rhash': self._lnaddr.paymenthash.hex(),
             'description': self._lnaddr.get_description(),
             'exp': self._lnaddr.get_expiry(),

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Electrum - lightweight Bitcoin client
+# Electrum - lightweight Pandacoin client
 # Copyright (C) 2011 thomasv@gitorious
 #
 # Permission is hereby granted, free of charge, to any person
@@ -28,7 +28,7 @@ from typing import List, Tuple, TYPE_CHECKING, Optional, Union, Sequence
 import enum
 from enum import IntEnum, Enum
 
-from .util import bfh, bh2u, BitcoinException, assert_bytes, to_bytes, inv_dict, is_hex_str
+from .util import bfh, bh2u, PandacoinException, assert_bytes, to_bytes, inv_dict, is_hex_str
 from . import version
 from . import segwit_addr
 from . import constants
@@ -43,7 +43,7 @@ if TYPE_CHECKING:
 
 COINBASE_MATURITY = 100
 COIN = 100000000
-TOTAL_COIN_SUPPLY_LIMIT_IN_FUNK = 21000000
+TOTAL_COIN_SUPPLY_LIMIT_IN_PND = 21000000
 
 NLOCKTIME_MIN = 0
 NLOCKTIME_BLOCKHEIGHT_MAX = 500_000_000 - 1
@@ -218,7 +218,7 @@ def int_to_hex(i: int, length: int=1) -> str:
     return rev_hex(s)
 
 def script_num_to_hex(i: int) -> str:
-    """See CScriptNum in Bitcoin Core.
+    """See CScriptNum in Pandacoin Core.
     Encodes an integer as hex, to be used in script.
 
     ported from https://github.com/bitcoin/bitcoin/blob/8cbc5c4be4be22aca228074f087a374a7ec38be8/src/script/script.h#L326
@@ -279,7 +279,7 @@ def push_script(data: str) -> str:
     choosing canonical opcodes depending on the length of the data.
     hex -> hex
 
-    ported from https://github.com/FUNKsuite/FUNKd/blob/fdc2bc867bda6b351191b5872d2da8270df00d13/txscript/scriptbuilder.go#L128
+    ported from https://github.com/PNDsuite/PNDd/blob/fdc2bc867bda6b351191b5872d2da8270df00d13/txscript/scriptbuilder.go#L128
     """
     data = bfh(data)
     data_len = len(data)
@@ -461,11 +461,11 @@ def script_to_address(script: str, *, net=None) -> str:
 def address_to_script(addr: str, *, net=None) -> str:
     if net is None: net = constants.net
     if not is_address(addr, net=net):
-        raise BitcoinException(f"invalid bitcoin address: {addr}")
+        raise PandacoinException(f"invalid bitcoin address: {addr}")
     witver, witprog = segwit_addr.decode_segwit_address(net.SEGWIT_HRP, addr)
     if witprog is not None:
         if not (0 <= witver <= 16):
-            raise BitcoinException(f'impossible witness version: {witver}')
+            raise PandacoinException(f'impossible witness version: {witver}')
         return construct_script([witver, bytes(witprog)])
     addrtype, hash_160_ = b58_address_to_hash160(addr)
     if addrtype == net.ADDRTYPE_P2PKH:
@@ -473,7 +473,7 @@ def address_to_script(addr: str, *, net=None) -> str:
     elif addrtype == net.ADDRTYPE_P2SH:
         script = construct_script([opcodes.OP_HASH160, hash_160_, opcodes.OP_EQUAL])
     else:
-        raise BitcoinException(f'unknown address type: {addrtype}')
+        raise PandacoinException(f'unknown address type: {addrtype}')
     return script
 
 
@@ -492,7 +492,7 @@ def address_to_payload(addr: str, *, net=None) -> Tuple[OnchainOutputType, bytes
     """Return (type, pubkey hash / witness program) for an address."""
     if net is None: net = constants.net
     if not is_address(addr, net=net):
-        raise BitcoinException(f"invalid bitcoin address: {addr}")
+        raise PandacoinException(f"invalid bitcoin address: {addr}")
     witver, witprog = segwit_addr.decode_segwit_address(net.SEGWIT_HRP, addr)
     if witprog is not None:
         if witver == 0:
@@ -501,20 +501,20 @@ def address_to_payload(addr: str, *, net=None) -> Tuple[OnchainOutputType, bytes
             elif len(witprog) == 32:
                 return OnchainOutputType.WITVER0_P2WSH, bytes(witprog)
             else:
-                raise BitcoinException(f"unexpected length for segwit witver=0 witprog: len={len(witprog)}")
+                raise PandacoinException(f"unexpected length for segwit witver=0 witprog: len={len(witprog)}")
         elif witver == 1:
             if len(witprog) == 32:
                 return OnchainOutputType.WITVER1_P2TR, bytes(witprog)
             else:
-                raise BitcoinException(f"unexpected length for segwit witver=1 witprog: len={len(witprog)}")
+                raise PandacoinException(f"unexpected length for segwit witver=1 witprog: len={len(witprog)}")
         else:
-            raise BitcoinException(f"not implemented handling for witver={witver}")
+            raise PandacoinException(f"not implemented handling for witver={witver}")
     addrtype, hash_160_ = b58_address_to_hash160(addr)
     if addrtype == net.ADDRTYPE_P2PKH:
         return OnchainOutputType.P2PKH, hash_160_
     elif addrtype == net.ADDRTYPE_P2SH:
         return OnchainOutputType.P2SH, hash_160_
-    raise BitcoinException(f"unknown address type: {addrtype}")
+    raise PandacoinException(f"unknown address type: {addrtype}")
 
 
 def address_to_scripthash(addr: str, *, net=None) -> str:
@@ -546,7 +546,7 @@ __b43chars = b'0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ$*+-./:'
 assert len(__b43chars) == 43
 
 
-class BaseDecodeError(BitcoinException): pass
+class BaseDecodeError(PandacoinException): pass
 
 
 def base_encode(v: bytes, *, base: int) -> str:
@@ -569,7 +569,7 @@ def base_encode(v: bytes, *, base: int) -> str:
         result.append(chars[mod])
         long_value = div
     result.append(chars[long_value])
-    # Bitcoin does a little leading-zero-compression:
+    # Pandacoin does a little leading-zero-compression:
     # leading 0-bytes in the input become leading-1s
     nPad = 0
     for c in v:
@@ -682,7 +682,7 @@ def deserialize_privkey(key: str) -> Tuple[str, bytes, bool]:
     if ':' in key:
         txin_type, key = key.split(sep=':', maxsplit=1)
         if txin_type not in WIF_SCRIPT_TYPES:
-            raise BitcoinException('unknown script type: {}'.format(txin_type))
+            raise PandacoinException('unknown script type: {}'.format(txin_type))
     try:
         vch = DecodeBase58Check(key)
     except Exception as e:
@@ -695,24 +695,24 @@ def deserialize_privkey(key: str) -> Tuple[str, bytes, bool]:
         try:
             txin_type = WIF_SCRIPT_TYPES_INV[prefix_value]
         except KeyError as e:
-            raise BitcoinException('invalid prefix ({}) for WIF key (1)'.format(vch[0])) from None
+            raise PandacoinException('invalid prefix ({}) for WIF key (1)'.format(vch[0])) from None
     else:
         # all other keys must have a fixed first byte
         if vch[0] != constants.net.WIF_PREFIX:
-            raise BitcoinException('invalid prefix ({}) for WIF key (2)'.format(vch[0]))
+            raise PandacoinException('invalid prefix ({}) for WIF key (2)'.format(vch[0]))
 
     if len(vch) not in [33, 34]:
-        raise BitcoinException('invalid vch len for WIF key: {}'.format(len(vch)))
+        raise PandacoinException('invalid vch len for WIF key: {}'.format(len(vch)))
     compressed = False
     if len(vch) == 34:
         if vch[33] == 0x01:
             compressed = True
         else:
-            raise BitcoinException(f'invalid WIF key. length suggests compressed pubkey, '
+            raise PandacoinException(f'invalid WIF key. length suggests compressed pubkey, '
                                    f'but last byte is {vch[33]} != 0x01')
 
     if is_segwit_script_type(txin_type) and not compressed:
-        raise BitcoinException('only compressed public keys can be used in segwit scripts')
+        raise PandacoinException('only compressed public keys can be used in segwit scripts')
 
     secret_bytes = vch[1:33]
     # we accept secrets outside curve range; cast into range here:

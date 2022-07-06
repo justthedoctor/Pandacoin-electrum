@@ -404,9 +404,9 @@ class LNWorker(Logger, NetworkRetryManager[LNPeerAddr]):
                 return [peer]
 
         # getting desperate... let's try hardcoded fallback list of peers
-        if constants.net in (constants.BitcoinTestnet,):
+        if constants.net in (constants.PandacoinTestnet,):
             fallback_list = FALLBACK_NODE_LIST_TESTNET
-        elif constants.net in (constants.BitcoinMainnet,):
+        elif constants.net in (constants.PandacoinMainnet,):
             fallback_list = FALLBACK_NODE_LIST_MAINNET
         else:
             return []  # regtest??
@@ -1073,7 +1073,7 @@ class LNWallet(LNWorker):
         lightning_needed = amount_to_pay - num_sats_can_send
         assert lightning_needed > 0
         min_funding_sat = lightning_needed + (lightning_needed // 20) + 1000 # safety margin
-        min_funding_sat = max(min_funding_sat, 100_000) # at least 1mFUNK
+        min_funding_sat = max(min_funding_sat, 100_000) # at least 1mPND
         if min_funding_sat > LN_MAX_FUNDING_SAT:
             return
         try:
@@ -1803,12 +1803,12 @@ class LNWallet(LNWorker):
         payment_preimage = os.urandom(32)
         payment_hash = sha256(payment_preimage)
         info = PaymentInfo(payment_hash, amount_msat, RECEIVED, PR_UNPAID)
-        amount_FUNK = amount_msat/Decimal(COIN*1000) if amount_msat else None
+        amount_PND = amount_msat/Decimal(COIN*1000) if amount_msat else None
         if expiry == 0:
             expiry = LN_EXPIRY_NEVER
         lnaddr = LnAddr(
             paymenthash=payment_hash,
-            amount=amount_FUNK,
+            amount=amount_PND,
             tags=[
                 ('d', message),
                 ('c', MIN_FINAL_CLTV_EXPIRY_FOR_INVOICE),
@@ -2394,7 +2394,7 @@ class LNWallet(LNWorker):
     def current_feerate_per_kw(self):
         from .simple_config import FEE_LN_ETA_TARGET, FEERATE_FALLBACK_STATIC_FEE, FEERATE_REGTEST_HARDCODED
         from .simple_config import FEERATE_PER_KW_MIN_RELAY_LIGHTNING
-        if constants.net is constants.BitcoinRegtest:
+        if constants.net is constants.PandacoinRegtest:
             return FEERATE_REGTEST_HARDCODED // 4
         feerate_per_kvbyte = self.network.config.eta_target_to_fee(FEE_LN_ETA_TARGET)
         if feerate_per_kvbyte is None:

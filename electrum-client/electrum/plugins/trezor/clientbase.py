@@ -13,7 +13,7 @@ from electrum.plugins.hw_wallet.plugin import OutdatedHwFirmwareException, Hardw
 from trezorlib.client import TrezorClient, PASSPHRASE_ON_DEVICE
 from trezorlib.exceptions import TrezorFailure, Cancelled, OutdatedFirmwareError
 from trezorlib.messages import WordRequestType, FailureType, RecoveryDeviceType, ButtonRequestType
-import trezorlib.FUNK
+import trezorlib.PND
 import trezorlib.device
 
 MESSAGES = {
@@ -139,7 +139,7 @@ class TrezorClientBase(HardwareClientBase, Logger):
     def get_xpub(self, bip32_path, xtype, creating=False):
         address_n = parse_path(bip32_path)
         with self.run_flow(creating_wallet=creating):
-            node = trezorlib.FUNK.get_public_node(self.client, address_n).node
+            node = trezorlib.PND.get_public_node(self.client, address_n).node
         return BIP32Node(xtype=xtype,
                          eckey=ecc.ECPubkey(node.public_key),
                          chaincode=node.chain_code,
@@ -219,7 +219,7 @@ class TrezorClientBase(HardwareClientBase, Logger):
         coin_name = self.plugin.get_coin_name()
         address_n = parse_path(address_str)
         with self.run_flow():
-            return trezorlib.FUNK.get_address(
+            return trezorlib.PND.get_address(
                 self.client,
                 coin_name,
                 address_n,
@@ -232,7 +232,7 @@ class TrezorClientBase(HardwareClientBase, Logger):
         coin_name = self.plugin.get_coin_name()
         address_n = parse_path(address_str)
         with self.run_flow():
-            return trezorlib.FUNK.sign_message(
+            return trezorlib.PND.sign_message(
                 self.client,
                 coin_name,
                 address_n,
@@ -256,7 +256,7 @@ class TrezorClientBase(HardwareClientBase, Logger):
     @runs_in_hwd_thread
     def sign_tx(self, *args, **kwargs):
         with self.run_flow():
-            return trezorlib.FUNK.sign_tx(self.client, *args, **kwargs)
+            return trezorlib.PND.sign_tx(self.client, *args, **kwargs)
 
     @runs_in_hwd_thread
     def reset_device(self, *args, **kwargs):

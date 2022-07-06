@@ -21,7 +21,7 @@ Builder.load_string('''
                 height: '80dp'
                 Button:
                     background_color: 0, 0, 0, 0
-                    id: FUNK
+                    id: PND
                     text: kb.amount + ' ' + app.base_unit
                     color: (0.7, 0.7, 1, 1) if kb.is_fiat else (1, 1, 1, 1)
                     halign: 'right'
@@ -50,8 +50,8 @@ Builder.load_string('''
                 fiat_amount: ''
                 is_fiat: False
                 is_max: False
-                on_fiat_amount: if self.is_fiat: self.amount = app.fiat_to_FUNK(self.fiat_amount)
-                on_amount: if not self.is_fiat: self.fiat_amount = app.FUNK_to_fiat(self.amount)
+                on_fiat_amount: if self.is_fiat: self.amount = app.fiat_to_PND(self.fiat_amount)
+                on_amount: if not self.is_fiat: self.fiat_amount = app.PND_to_fiat(self.amount)
                 size_hint: 1, None
                 update_amount: popup.update_amount
                 height: '300dp'
@@ -115,7 +115,7 @@ Builder.load_string('''
                     height: '48dp'
                     text: _('OK')
                     on_release:
-                        root.callback('!' if kb.is_max else FUNK.text if kb.amount else '')
+                        root.callback('!' if kb.is_max else PND.text if kb.amount else '')
                         popup.dismiss()
 ''')
 
@@ -147,7 +147,7 @@ class AmountDialog(Factory.Popup):
                 amount += c
             except:
                 pass
-            # truncate FUNK amounts to max precision:
+            # truncate PND amounts to max precision:
             if not kb.is_fiat and '.' in amount:
                 p = amount.find('.')
                 amount = amount.replace('.', '')

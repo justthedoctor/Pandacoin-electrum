@@ -168,29 +168,29 @@ class ExchangeBase(Logger):
         return sorted([str(a) for (a, b) in rates.items() if b is not None and len(a)==3])
 
 
-class BitcoinAverage(ExchangeBase):
+class PandacoinAverage(ExchangeBase):
     # note: historical rates used to be freely available
     # but this is no longer the case. see #5188
 
     async def get_rates(self, ccy):
         json = await self.get_json('apiv2.bitcoinaverage.com', '/indices/global/ticker/short')
-        return dict([(r.replace("FUNK", ""), to_decimal(json[r]['last']))
+        return dict([(r.replace("PND", ""), to_decimal(json[r]['last']))
                      for r in json if r != 'timestamp'])
 
 
-class Bitcointoyou(ExchangeBase):
+class Pandacointoyou(ExchangeBase):
 
     async def get_rates(self, ccy):
         json = await self.get_json('bitcointoyou.com', "/API/ticker.aspx")
         return {'BRL': to_decimal(json['ticker']['last'])}
 
 
-class BitcoinVenezuela(ExchangeBase):
+class PandacoinVenezuela(ExchangeBase):
 
     async def get_rates(self, ccy):
         json = await self.get_json('api.bitcoinvenezuela.com', '/')
-        rates = [(r, to_decimal(json['FUNK'][r])) for r in json['FUNK']
-                 if json['FUNK'][r] is not None]  # Giving NULL for LTC
+        rates = [(r, to_decimal(json['PND'][r])) for r in json['PND']
+                 if json['PND'][r] is not None]  # Giving NULL for LTC
         return dict(rates)
 
     def history_ccys(self):
@@ -198,14 +198,14 @@ class BitcoinVenezuela(ExchangeBase):
 
     async def request_history(self, ccy):
         json = await self.get_json('api.bitcoinvenezuela.com',
-                             "/historical/index.php?coin=FUNK")
-        return json[ccy +'_FUNK']
+                             "/historical/index.php?coin=PND")
+        return json[ccy +'_PND']
 
 
 class Bitbank(ExchangeBase):
 
     async def get_rates(self, ccy):
-        json = await self.get_json('public.bitbank.cc', '/FUNK_jpy/ticker')
+        json = await self.get_json('public.bitbank.cc', '/PND_jpy/ticker')
         return {'JPY': to_decimal(json['data']['last'])}
 
 
@@ -237,7 +237,7 @@ class BitStamp(ExchangeBase):
 
     async def get_rates(self, ccy):
         if ccy in CURRENCIES[self.name()]:
-            json = await self.get_json('www.bitstamp.net', f'/api/v2/ticker/FUNK{ccy.lower()}/')
+            json = await self.get_json('www.bitstamp.net', f'/api/v2/ticker/PND{ccy.lower()}/')
             return {ccy: to_decimal(json['last'])}
         return {}
 
@@ -259,7 +259,7 @@ class BlockchainInfo(ExchangeBase):
 class Bylls(ExchangeBase):
 
     async def get_rates(self, ccy):
-        json = await self.get_json('bylls.com', '/api/price?from_currency=FUNK&to_currency=CAD')
+        json = await self.get_json('bylls.com', '/api/price?from_currency=PND&to_currency=CAD')
         return {'CAD': to_decimal(json['public_price']['to_price'])}
 
 
@@ -267,7 +267,7 @@ class Coinbase(ExchangeBase):
 
     async def get_rates(self, ccy):
         json = await self.get_json('api.coinbase.com',
-                             '/v2/exchange-rates?currency=FUNK')
+                             '/v2/exchange-rates?currency=PND')
         return {ccy: to_decimal(rate) for (ccy, rate) in json["data"]["rates"].items()}
 
 
@@ -366,7 +366,7 @@ class Kraken(ExchangeBase):
                      for k, v in json['result'].items())
 
 
-class LocalBitcoins(ExchangeBase):
+class LocalPandacoins(ExchangeBase):
 
     async def get_rates(self, ccy):
         json = await self.get_json('localbitcoins.com',
@@ -374,7 +374,7 @@ class LocalBitcoins(ExchangeBase):
         return dict([(r, to_decimal(json[r]['rates']['last'])) for r in json])
 
 
-class MercadoBitcoin(ExchangeBase):
+class MercadoPandacoin(ExchangeBase):
 
     async def get_rates(self, ccy):
         json = await self.get_json('api.bitvalor.com', '/v1/ticker.json')
@@ -385,7 +385,7 @@ class TheRockTrading(ExchangeBase):
 
     async def get_rates(self, ccy):
         json = await self.get_json('api.therocktrading.com',
-                             '/v1/funds/FUNKEUR/ticker')
+                             '/v1/funds/PNDEUR/ticker')
         return {'EUR': to_decimal(json['last'])}
 
 
@@ -408,21 +408,21 @@ class Winkdex(ExchangeBase):
 
 class Zaif(ExchangeBase):
     async def get_rates(self, ccy):
-        json = await self.get_json('api.zaif.jp', '/api/1/last_price/FUNK_jpy')
+        json = await self.get_json('api.zaif.jp', '/api/1/last_price/PND_jpy')
         return {'JPY': to_decimal(json['last_price'])}
 
 
 class Bitragem(ExchangeBase):
 
     async def get_rates(self,ccy):
-        json = await self.get_json('api.bitragem.com', '/v1/index?asset=FUNK&market=BRL')
+        json = await self.get_json('api.bitragem.com', '/v1/index?asset=PND&market=BRL')
         return {'BRL': to_decimal(json['response']['index'])}
 
 
 class Biscoint(ExchangeBase):
 
     async def get_rates(self,ccy):
-        json = await self.get_json('api.biscoint.io', '/v1/ticker?base=FUNK&quote=BRL')
+        json = await self.get_json('api.biscoint.io', '/v1/ticker?base=PND&quote=BRL')
         return {'BRL': to_decimal(json['data']['last'])}
 
 
@@ -629,21 +629,21 @@ class FxThread(ThreadJob):
             return Decimal('NaN')
         return Decimal(rate)
 
-    def format_amount(self, FUNK_balance, *, timestamp: int = None) -> str:
+    def format_amount(self, PND_balance, *, timestamp: int = None) -> str:
         if timestamp is None:
             rate = self.exchange_rate()
         else:
             rate = self.timestamp_rate(timestamp)
-        return '' if rate.is_nan() else "%s" % self.value_str(FUNK_balance, rate)
+        return '' if rate.is_nan() else "%s" % self.value_str(PND_balance, rate)
 
-    def format_amount_and_units(self, FUNK_balance, *, timestamp: int = None) -> str:
+    def format_amount_and_units(self, PND_balance, *, timestamp: int = None) -> str:
         if timestamp is None:
             rate = self.exchange_rate()
         else:
             rate = self.timestamp_rate(timestamp)
-        return '' if rate.is_nan() else "%s %s" % (self.value_str(FUNK_balance, rate), self.ccy)
+        return '' if rate.is_nan() else "%s %s" % (self.value_str(PND_balance, rate), self.ccy)
 
-    def get_fiat_status_text(self, FUNK_balance, base_unit, decimal_point):
+    def get_fiat_status_text(self, PND_balance, base_unit, decimal_point):
         rate = self.exchange_rate()
         return _("  (No FX rate available)") if rate.is_nan() else " 1 %s~%s %s" % (base_unit,
             self.value_str(COIN / (10**(8 - decimal_point)), rate), self.ccy)

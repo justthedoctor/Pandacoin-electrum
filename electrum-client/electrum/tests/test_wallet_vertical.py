@@ -329,7 +329,7 @@ class TestWalletKeystoreAddressIntegrityForMainnet(ElectrumTestCase):
         self.assertEqual(w.txin_type, 'p2wpkh-p2sh')
 
         self.assertEqual(w.get_receiving_addresses()[0], '35ohQTdNykjkF1Mn9nAVEFjupyAtsPAK1W')
-        self.assertEqual(w.get_change_addresses()[0], '3KaFUNKviBLEJajTEMstsA2GWjYoPzPK7Y7')
+        self.assertEqual(w.get_change_addresses()[0], '3KaPNDviBLEJajTEMstsA2GWjYoPzPK7Y7')
 
     @mock.patch.object(wallet.Abstract_Wallet, 'save_db')
     def test_bip39_seed_bip84_native_segwit(self, mock_save_db):

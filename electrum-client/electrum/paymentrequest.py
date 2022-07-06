@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Electrum - lightweight Bitcoin client
+# Electrum - lightweight Pandacoin client
 # Copyright (C) 2014 Thomas Voegtlin
 #
 # Permission is hereby granted, free of charge, to any person
@@ -170,7 +170,7 @@ class PaymentRequest:
             return True
         if pr.pki_type in ["x509+sha256", "x509+sha1"]:
             return self.verify_x509(pr)
-        elif pr.pki_type in ["dnssec+FUNK", "dnssec+ecdsa"]:
+        elif pr.pki_type in ["dnssec+PND", "dnssec+ecdsa"]:
             return self.verify_dnssec(pr, contacts)
         else:
             self.error = "ERROR: Unsupported PKI Type for Message Signature"
@@ -223,7 +223,7 @@ class PaymentRequest:
         if info.get('validated') is not True:
             self.error = "Alias verification failed (DNSSEC)"
             return False
-        if pr.pki_type == "dnssec+FUNK":
+        if pr.pki_type == "dnssec+PND":
             self.requestor = alias
             address = info.get('address')
             pr.signature = b''
@@ -347,7 +347,7 @@ def make_unsigned_request(req: 'Invoice'):
 
 
 def sign_request_with_alias(pr, alias, alias_privkey):
-    pr.pki_type = 'dnssec+FUNK'
+    pr.pki_type = 'dnssec+PND'
     pr.pki_data = str(alias)
     message = pr.SerializeToString()
     ec_key = ecc.ECPrivkey(alias_privkey)
@@ -454,7 +454,7 @@ def serialize_request(req):  # FIXME this is broken
     requestor = req.get('name')
     if requestor and signature:
         pr.signature = bfh(signature)
-        pr.pki_type = 'dnssec+FUNK'
+        pr.pki_type = 'dnssec+PND'
         pr.pki_data = str(requestor)
     return pr
 

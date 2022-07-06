@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Electrum - lightweight Bitcoin client
+# Electrum - lightweight Pandacoin client
 # Copyright (C) 2018 The Electrum developers
 #
 # Permission is hereby granted, free of charge, to any person
@@ -68,7 +68,7 @@ class AbstractNet:
         return bytes.fromhex(bitcoin.rev_hex(cls.GENESIS))
 
 
-class BitcoinMainnet(AbstractNet):
+class PandacoinMainnet(AbstractNet):
 
     NET_NAME = "mainnet"
     TESTNET = False
@@ -104,7 +104,7 @@ class BitcoinMainnet(AbstractNet):
     LN_DNS_SEEDS = [ ]
 
 
-class BitcoinTestnet(AbstractNet):
+class PandacoinTestnet(AbstractNet):
 
     NET_NAME = "testnet"
     TESTNET = True
@@ -142,7 +142,7 @@ class BitcoinTestnet(AbstractNet):
     ]
 
 
-class BitcoinRegtest(BitcoinTestnet):
+class PandacoinRegtest(PandacoinTestnet):
 
     NET_NAME = "regtest"
     SEGWIT_HRP = "bcrt"
@@ -153,7 +153,7 @@ class BitcoinRegtest(BitcoinTestnet):
     LN_DNS_SEEDS = []
 
 
-class BitcoinSimnet(BitcoinTestnet):
+class PandacoinSimnet(PandacoinTestnet):
 
     NET_NAME = "simnet"
     WIF_PREFIX = 0x64
@@ -167,7 +167,7 @@ class BitcoinSimnet(BitcoinTestnet):
     LN_DNS_SEEDS = []
 
 
-class BitcoinSignet(BitcoinTestnet):
+class PandacoinSignet(PandacoinTestnet):
 
     NET_NAME = "signet"
     BOLT11_HRP = "tbs"
@@ -180,24 +180,24 @@ class BitcoinSignet(BitcoinTestnet):
 NETS_LIST = tuple(all_subclasses(AbstractNet))
 
 # don't import net directly, import the module instead (so that net is singleton)
-net = BitcoinMainnet
+net = PandacoinMainnet
 
 def set_signet():
     global net
-    net = BitcoinSignet
+    net = PandacoinSignet
 
 def set_simnet():
     global net
-    net = BitcoinSimnet
+    net = PandacoinSimnet
 
 def set_mainnet():
     global net
-    net = BitcoinMainnet
+    net = PandacoinMainnet
 
 def set_testnet():
     global net
-    net = BitcoinTestnet
+    net = PandacoinTestnet
 
 def set_regtest():
     global net
-    net = BitcoinRegtest
+    net = PandacoinRegtest

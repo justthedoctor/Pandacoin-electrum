@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Electrum - lightweight Bitcoin client
+# Electrum - lightweight Pandacoin client
 # Copyright (C) 2012 thomasv@gitorious
 #
 # Permission is hereby granted, free of charge, to any person
@@ -62,7 +62,7 @@ from electrum.util import (format_time,
                            bh2u, bfh, InvalidPassword,
                            UserFacingException,
                            get_new_wallet_name, send_exception_to_crash_reporter,
-                           InvalidBitcoinURI, maybe_extract_bolt11_invoice, NotEnoughFunds,
+                           InvalidPandacoinURI, maybe_extract_bolt11_invoice, NotEnoughFunds,
                            NoDynamicFeeEstimates,
                            AddTransactionException, BITCOIN_BIP21_URI_SCHEME,
                            InvoiceError, parse_max_spend)
@@ -83,7 +83,7 @@ from electrum.lnutil import ln_dummy_address, extract_nodeid, ConnStringFormatEr
 from electrum.lnaddr import lndecode, LnInvoiceException
 
 from .exception_window import Exception_Hook
-from .amountedit import AmountEdit, FUNKAmountEdit, FreezableLineEdit, FeerateEdit, SizedFreezableLineEdit
+from .amountedit import AmountEdit, PNDAmountEdit, FreezableLineEdit, FeerateEdit, SizedFreezableLineEdit
 from .qrcodewidget import QRCodeWidget, QRDialog
 from .qrtextedit import ShowQRTextEdit, ScanQRTextEdit, ScanShowQRTextEdit
 from .transaction_dialog import show_transaction
@@ -600,8 +600,8 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, Logger):
         if self.wallet.is_watching_only():
             msg = ' '.join([
                 _("This wallet is watching-only."),
-                _("This means you will not be able to spend Bitcoins with it."),
-                _("Make sure you own the seed phrase or the private keys, before you request Bitcoins to be sent to this wallet.")
+                _("This means you will not be able to spend Pandacoins with it."),
+                _("Make sure you own the seed phrase or the private keys, before you request Pandacoins to be sent to this wallet.")
             ])
             self.show_warning(msg, title=_('Watch-only wallet'))
 
@@ -618,7 +618,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, Logger):
         msg = ''.join([
             _("You are in testnet mode."), ' ',
             _("Testnet coins are worthless."), '\n',
-            _("Testnet is separate from the main Bitcoin network. It is used for testing.")
+            _("Testnet is separate from the main Pandacoin network. It is used for testing.")
         ])
         cb = QCheckBox(_("Don't show this again."))
         cb_checked = False
@@ -821,7 +821,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, Logger):
         help_menu.addSeparator()
         help_menu.addAction(_("&Documentation"), lambda: webopen("http://docs.electrum.org/")).setShortcut(QKeySequence.HelpContents)
         if not constants.net.TESTNET:
-            help_menu.addAction(_("&Bitcoin Paper"), self.show_bitcoin_paper)
+            help_menu.addAction(_("&Pandacoin Paper"), self.show_bitcoin_paper)
         help_menu.addAction(_("&Report Bug"), self.show_report_bug)
         help_menu.addSeparator()
         help_menu.addAction(_("&Donate to server"), self.donate_to_server)
@@ -839,11 +839,11 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, Logger):
     def show_about(self):
         QMessageBox.about(self, "Electrum",
                           (_("Version")+" %s" % ELECTRUM_VERSION + "\n\n" +
-                           _("Electrum's focus is speed, with low resource usage and simplifying Bitcoin.") + " " +
+                           _("Electrum's focus is speed, with low resource usage and simplifying Pandacoin.") + " " +
                            _("You do not need to perform regular backups, because your wallet can be "
                               "recovered from a secret phrase that you can memorize or write on paper.") + " " +
                            _("Startup times are instant because it operates in conjunction with high-performance "
-                              "servers that handle the most complicated parts of the Bitcoin system.") + "\n\n" +
+                              "servers that handle the most complicated parts of the Pandacoin system.") + "\n\n" +
                            _("Uses icons from the Icons8 icon pack (icons8.com).")))
 
     def show_bitcoin_paper(self):
@@ -936,7 +936,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, Logger):
 
     def format_amount_and_units(self, amount_sat, *, timestamp: int = None) -> str:
         """Returns string with both bitcoin and fiat amounts, in desired units.
-        E.g. 500_000 -> '0.005 FUNK (191.42 EUR)'
+        E.g. 500_000 -> '0.005 PND (191.42 EUR)'
         """
         text = self.config.format_amount_and_units(amount_sat)
         fiat = self.fx.format_amount_and_units(amount_sat, timestamp=timestamp) if self.fx else None
@@ -959,7 +959,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, Logger):
     def base_unit(self):
         return self.config.get_base_unit()
 
-    def connect_fields(self, window, FUNK_e, fiat_e, fee_e):
+    def connect_fields(self, window, PND_e, fiat_e, fee_e):
 
         def edit_changed(edit):
             if edit.follows:
@@ -970,17 +970,17 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, Logger):
             rate = self.fx.exchange_rate() if self.fx else Decimal('NaN')
             if rate.is_nan() or amount is None:
                 if edit is fiat_e:
-                    FUNK_e.setText("")
+                    PND_e.setText("")
                     if fee_e:
                         fee_e.setText("")
                 else:
                     fiat_e.setText("")
             else:
                 if edit is fiat_e:
-                    FUNK_e.follows = True
-                    FUNK_e.setAmount(int(amount / Decimal(rate) * COIN))
-                    FUNK_e.setStyleSheet(ColorScheme.BLUE.as_stylesheet())
-                    FUNK_e.follows = False
+                    PND_e.follows = True
+                    PND_e.setAmount(int(amount / Decimal(rate) * COIN))
+                    PND_e.setStyleSheet(ColorScheme.BLUE.as_stylesheet())
+                    PND_e.follows = False
                     if fee_e:
                         window.update_fee()
                 else:
@@ -990,10 +990,10 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, Logger):
                     fiat_e.setStyleSheet(ColorScheme.BLUE.as_stylesheet())
                     fiat_e.follows = False
 
-        FUNK_e.follows = False
+        PND_e.follows = False
         fiat_e.follows = False
         fiat_e.textChanged.connect(partial(edit_changed, fiat_e))
-        FUNK_e.textChanged.connect(partial(edit_changed, FUNK_e))
+        PND_e.textChanged.connect(partial(edit_changed, PND_e))
         fiat_e.is_last_edited = False
 
     def update_status(self):
@@ -1159,7 +1159,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, Logger):
         grid.addWidget(QLabel(_('Description')), 0, 0)
         grid.addWidget(self.receive_message_e, 0, 1, 1, 4)
 
-        self.receive_amount_e = FUNKAmountEdit(self.get_decimal_point)
+        self.receive_amount_e = PNDAmountEdit(self.get_decimal_point)
         grid.addWidget(QLabel(_('Requested amount')), 1, 0)
         grid.addWidget(self.receive_amount_e, 1, 1)
 
@@ -1526,13 +1526,13 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, Logger):
         grid.setColumnStretch(3, 1)
 
         from .paytoedit import PayToEdit
-        self.amount_e = FUNKAmountEdit(self.get_decimal_point)
+        self.amount_e = PNDAmountEdit(self.get_decimal_point)
         self.payto_e = PayToEdit(self)
         self.payto_e.addPasteButton()
         msg = (_("Recipient of the funds.") + "\n\n"
-               + _("You may enter a Bitcoin address, a label from your list of contacts "
+               + _("You may enter a Pandacoin address, a label from your list of contacts "
                    "(a list of completions will be proposed), "
-                   "or an alias (email-like address that forwards to a Bitcoin address)") + ". "
+                   "or an alias (email-like address that forwards to a Pandacoin address)") + ". "
                + _("Lightning invoices are also supported.") + "\n\n"
                + _("You can also pay to many outputs in a single transaction, "
                    "specifying one output per line.") + "\n" + _("Format: address, amount") + "\n"
@@ -1690,7 +1690,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, Logger):
 
         for o in outputs:
             if o.scriptpubkey is None:
-                self.show_error(_('Bitcoin Address is None'))
+                self.show_error(_('Pandacoin Address is None'))
                 return True
             if o.value is None:
                 self.show_error(_('Invalid Amount'))
@@ -2241,7 +2241,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, Logger):
     def set_bip21(self, text: str):
         try:
             out = util.parse_URI(text, self.on_pr)
-        except InvalidBitcoinURI as e:
+        except InvalidPandacoinURI as e:
             self.show_error(_("Error parsing URI") + f":\n{e}")
             return
         self.payto_URI = out
@@ -2928,7 +2928,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, Logger):
         address  = address.text().strip()
         message = message.toPlainText().strip()
         if not bitcoin.is_address(address):
-            self.show_message(_('Invalid Bitcoin address.'))
+            self.show_message(_('Invalid Pandacoin address.'))
             return
         if self.wallet.is_watching_only():
             self.show_message(_('This is a watching-only wallet.'))
@@ -2956,7 +2956,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, Logger):
         address  = address.text().strip()
         message = message.toPlainText().strip().encode('utf-8')
         if not bitcoin.is_address(address):
-            self.show_message(_('Invalid Bitcoin address.'))
+            self.show_message(_('Invalid Pandacoin address.'))
             return
         try:
             # This can throw on invalid base64
@@ -3603,7 +3603,7 @@ class ElectrumWindow(QMainWindow, MessageBoxMixin, Logger):
         output_amount = QLabel('')
         grid.addWidget(QLabel(_('Output amount') + ':'), 2, 0)
         grid.addWidget(output_amount, 2, 1)
-        fee_e = FUNKAmountEdit(self.get_decimal_point)
+        fee_e = PNDAmountEdit(self.get_decimal_point)
         combined_fee = QLabel('')
         combined_feerate = QLabel('')
         def on_fee_edit(x):
