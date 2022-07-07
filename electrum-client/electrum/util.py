@@ -82,7 +82,7 @@ def all_subclasses(cls) -> Set:
 ca_path = certifi.where()
 
 
-base_units = {'PND':8, 'mPND':5, 'bits':2, 'sat':0}
+base_units = {'PND':6, 'mPND':5, 'bits':2, 'sat':0}
 base_units_inverse = inv_dict(base_units)
 base_units_list = ['PND', 'mPND', 'bits', 'sat']  # list(dict) does not guarantee order
 
@@ -652,7 +652,7 @@ def chunks(items, size: int):
 def format_satoshis_plain(
         x: Union[int, float, Decimal, str],  # amount in satoshis,
         *,
-        decimal_point: int = 8,  # how much to shift decimal point to left (default: sat->PND)
+        decimal_point: int = 6,  # how much to shift decimal point to left (default: sat->PND)
 ) -> str:
     """Display a satoshi amount scaled.  Always uses a '.' as a decimal
     point and has no thousands separator"""
@@ -677,7 +677,7 @@ def format_satoshis(
         x: Union[int, float, Decimal, str, None],  # amount in satoshis
         *,
         num_zeros: int = 0,
-        decimal_point: int = 8,  # how much to shift decimal point to left (default: sat->PND)
+        decimal_point: int = 6,  # how much to shift decimal point to left (default: sat->PND)
         precision: int = 0,  # extra digits after satoshi precision
         is_diff: bool = False,  # if True, enforce a leading sign (+/-)
         whitespaces: bool = False,  # if True, add whitespaces, to align numbers in a column
