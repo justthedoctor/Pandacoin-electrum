@@ -33,6 +33,8 @@ import threading
 from enum import IntEnum
 from decimal import Decimal
 
+
+
 from PyQt5.QtGui import QMouseEvent, QFont, QBrush, QColor
 from PyQt5.QtCore import (Qt, QPersistentModelIndex, QModelIndex, QAbstractItemModel,
                           QSortFilterProxyModel, QVariant, QItemSelectionModel, QDate, QPoint)
@@ -132,8 +134,11 @@ class HistoryNode(CustomNode):
             else:
                 status_str = format_time(int(timestamp))
         else:
+            _logger.info(f"{tx_item}")
             tx_hash = tx_item['txid']
+            _logger.info(f"{tx_hash}")
             conf = tx_item['confirmations']
+            _logger.info(f"{conf}")
             try:
                 status, status_str = self.model.tx_status_cache[tx_hash]
             except KeyError:
